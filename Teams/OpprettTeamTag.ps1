@@ -6,10 +6,10 @@
 if($mgGraphConnection -eq $null) {Write-Error "Ikke tilkoblet Graph"; break}
 
 # Nyttige variabler
-#$teamID = ""
-$azUserUPN = "lise@itwebinar.no"
-$tagNavn = "Vinnere"
-$tagBeskrivelse = "Alle vinnere"
+$teamID = ""
+$azUserUPN = ""
+$tagNavn = "Tag2"
+$tagBeskrivelse = "Alle taggere"
 #$Members = @{
 #        "userID" = $azUserObjectID
 #}
@@ -19,7 +19,7 @@ $azUserObjectID = Get-MgUser -UserID $azUserUPN | Select-Object Id
 
 ## Kommando for å opprette en tag
 # Krav: GruppeID (teamID), Tagnavn, tagbeskrivelse og MINST ETT MEDLEM (som også er medlem av gruppen)
-New-MgTeamTag -TeamId $teamID -DisplayName $tagNavn -Description $tagBeskrivelse -Members @{"userID"=$azUserObjectID}
+New-MgTeamTag -TeamId $teamID -DisplayName $tagNavn -Description $tagBeskrivelse -Members @{"userID"=$azUserObjectID.Id}
 
 # List opp alle opprettede merker i teamet
 $filter = "DisplayName eq" + " '" + $tagNavn + "'"
@@ -27,4 +27,4 @@ $teamTag = Get-MgTeamTag -TeamId $teamID -Filter $filter
 Get-MgTeamTag -TeamId $teamID -TeamworkTagId $teamTag.Id | Format-List
 
 # Medlemmer av tagen
-Get-MgTeamTagMember -TeamId $teamID -TeamworkTagId $teamTagID
+Get-MgTeamTagMember -TeamId $teamID -TeamworkTagId $teamTag.Id
