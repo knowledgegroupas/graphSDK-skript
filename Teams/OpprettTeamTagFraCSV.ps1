@@ -8,7 +8,7 @@ if($mgGraphConnection -eq $null) {Write-Error "Ikke tilkoblet Graph"; break}
 # Vis fremdrift
 Write-Progress -Activity "Opprett Teams-tagger" -Status "Leser CSV-fil" -Id 1 -PercentComplete 5
 # Les inn verdier fra CSV-fil
-$tagStrukturCSV = Import-Csv -Path ".\tagliste.csv" -Delimiter ","
+$tagStrukturCSV = Import-Csv -Path ".\lokaltilpasninger\tagliste.csv" -Delimiter ","
 
 # Vis fremdrift for tagopprettelse
 $fremdrift = 1
