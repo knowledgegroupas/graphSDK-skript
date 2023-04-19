@@ -2,13 +2,32 @@
 # Krever API application permission TeamworkTag.ReadWrite.All
 # For få få objektID for en gitt AzureAD-bruker kreves User.Read.All
 
-# Kontroller om vi er tilkoblet Microsoft Graph
-if($mgGraphConnection -eq $null) {Write-Error "Ikke tilkoblet Graph"; break}
+# Skriptet krever at man angir en CSV-fil og banen til denne
+[CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$CSVfil,
 
+        [Parameter()]
+        [string]$Skilletegn = ","
+
+    )
+
+## Helsesjekk før vi fortsetter
+# Kontroller om vi er tilkoblet Microsoft Graph
+if((Get-MgContext) -eq $null) {Write-Error "Ikke tilkoblet Graph!"; break}
+# Kontroller at CSV-filen finnes
+if(!(Test-Path $CSVfil)) {
+    $skript = $MyInvocation.MyCommand
+    Write-Error "Du må angi en gyldig bane til CSV-fil. Format: $skript -CSVFil <bane til csvfil>.csv"
+    break
+}
+
+## Alt er vel så vi går i gang! 
 # Vis fremdrift
 Write-Progress -Activity "Opprett Teams-tagger" -Status "Leser CSV-fil" -Id 1 -PercentComplete 5
 # Les inn verdier fra CSV-fil
-$tagStrukturCSV = Import-Csv -Path ".\lokaltilpasninger\tagliste.csv" -Delimiter ","
+$tagStrukturCSV = Import-Csv -Path $CSVfil -Delimiter $Skilletegn
 
 # Vis fremdrift for tagopprettelse
 $fremdrift = 1
