@@ -1,7 +1,6 @@
 ## Oppretter tag for hver rad i CSV-fil
 # Krever API application permission TeamworkTag.ReadWrite.All
-# For Get-MgUser kreves minst delegated User.ReadBasic.All
-# For New-MgTeamTag kreves minst delegated TeamworkTag.ReadWrite og at brukeren er admin-konto
+# For få få objektID for en gitt AzureAD-bruker kreves User.Read.All
 
 # Skriptet krever at man angir en CSV-fil og banen til denne
 [CmdletBinding()]
@@ -37,10 +36,13 @@ Write-Progress -Activity "Legger til tagger" -Status "Oppretter tag" -Id 2 -Pare
 
 foreach($tagiCSV in $tagStrukturCSV) {
     Write-Progress -Activity "Legger til tagger" -Status "Oppretter $tagiCSV.tagNavn i $tagiCSV.teamID" -Id 2 -ParentId 1 -PercentComplete ($fremdrift/$tagStrukturCSV.Count*100)
-    # Opprett tag
+    # Dersom CSV-filen inneholder UPN må vi finne objektID for bruker, krever User.Read.All
+    $azUserObjectID = Get-MgUser -UserID $tagiCSV.tagmedlem | Select-Object Id
+
+    # Opprett tag (krever TeamworkTag.ReadWrite.All)
     # Krav: GruppeID (teamID), Tagnavn, tagbeskrivelse og MINST ETT MEDLEM (som også er medlem av gruppen)
-    New-MgTeamTag -TeamId $tagiCSV.teamID -DisplayName $tagiCSV.tagNavn -Description $tagiCSV.tagBeskrivelse -Members @{"userID"=(Get-MgUser -UserID $tagiCSV.tagMedlem).Id}
-    
+    New-MgTeamTag -TeamId $tagiCSV.teamID -DisplayName $tagiCSV.tagNavn -Description $tagiCSV.tagBeskrivelse -Members @{"userID"=$azUserObjectID.Id}
+
     # Fremdriftsoppdatering
     $fremdrift++
 }
